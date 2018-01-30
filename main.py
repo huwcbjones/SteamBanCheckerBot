@@ -39,4 +39,9 @@ async def on_message(message):
 async def on_ready():
     await checker.on_ready()
 
+
+@checker.discord.event
+async def on_server_join(server):
+    await checker.on_server_join(server)
+
 checker.run()
