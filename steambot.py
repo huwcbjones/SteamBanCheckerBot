@@ -190,6 +190,10 @@ class BanChecker:
                 user_id = re.search("http[|s]://steamcommunity.com/profiles/([0-9]+)", user_string, re.IGNORECASE)
                 if user_id is not None:
                     user = steamapi.user.SteamUser(userid=int(user_id.group(1)))
+            elif re.match('http[|s]://csgostats.gg/player/([0-9]+)', user_string):
+                user_id = re.search("http[|s]://csgostats.gg/player/([0-9]+)", user_string, re.IGNORECASE)
+                if user_id is not None:
+                    user = steamapi.user.SteamUser(userid=int(user_id.group(1)))
             elif re.match("[0-9]+", user_string):
                 user_id = re.search("([0-9]+)", user_string, re.IGNORECASE)
                 if user_id is not None:
