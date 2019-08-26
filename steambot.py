@@ -428,6 +428,15 @@ class BanChecker:
                             users.append(user)
                     except UserNotFoundError:
                         pass
+            if re.match('http[|s]://csgostats.gg/player/([0-9]+)', user_string):
+                user_match = re.findall("http[|s]://csgostats.gg/player/([0-9]+)", user_string, re.IGNORECASE)
+                for u in user_match:
+                    try:
+                        user = steamapi.user.SteamUser(userurl=u[1].strip("/"))
+                        if user is not None:
+                            users.append(user)
+                    except UserNotFoundError:
+                        pass
             if re.match('http(|s):\/\/steamcommunity\.com\/profiles\/([0-9]*)', user_string):
                 user_match = re.findall('http(|s):\/\/steamcommunity\.com\/profiles\/([0-9]*)', user_string,
                                         re.IGNORECASE)
