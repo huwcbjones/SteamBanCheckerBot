@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-from steambot import BanChecker
+from steambot.bot import BanChecker
 
 logging.basicConfig(format='%(asctime)s[%(levelname)8s][%(module)s] %(message)s', datefmt='[%m/%d/%Y %H:%M:%S]')
 logger = logging.getLogger(__name__)

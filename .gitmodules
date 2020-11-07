@@ -1,3 +1,3 @@
-[submodule "lib/steamapi"]
-	path = lib/steamapi
+[submodule "external/steamapi"]
+	path = external/steamapi
 	url = https://github.com/smiley/steamapi
