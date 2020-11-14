@@ -11,7 +11,7 @@ WORKDIR /app
 ENV PYTHONPATH /app
 
 # Install any needed packages from pyproject
-COPY pyproject.toml poetry.lock /app/
+COPY pyproject.toml /app/
 COPY external /app/external
 RUN poetry install --no-dev --no-interaction
 
