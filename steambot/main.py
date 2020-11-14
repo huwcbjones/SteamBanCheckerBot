@@ -1,47 +1,30 @@
-import argparse
 import logging
 import os
-from steambot.bot import BanChecker
 
-logging.basicConfig(format='%(asctime)s[%(levelname)8s][%(module)s] %(message)s', datefmt='[%m/%d/%Y %H:%M:%S]')
-logger = logging.getLogger(__name__)
+from steambot import aioutils
+from steambot.checker import BanChecker
+from steambot.log import setup_logging
 
-parser = argparse.ArgumentParser(description='Steam Ban Checker Bot')
-parser.add_argument('-v', '--verbose', dest='verbosity', action='count', help='Increase verbosity.')
-args = parser.parse_args()
-
-# Set root logging level
-if args.verbosity is not None:
-    logger = logging.getLogger()
-    if args.verbosity == 1:
-        logger.setLevel(logging.INFO)
-    else:
-        logger.setLevel(logging.DEBUG)
-
-discord_token = os.getenv('DISCORD_API_TOKEN')
-if discord_token is None:
-    parser.error("DISCORD_API_TOKEN environmental variable not found. Please check your environmental vars are set.")
-
-steam_token = os.getenv('STEAM_API_TOKEN')
-if discord_token is None:
-    parser.error("STEAM_API_TOKEN environmental variable not found. Please check your environmental vars are set.")
+LOGGER = logging.getLogger(__name__)
 
 
-checker = BanChecker(steamapi_token=steam_token, discord_token=discord_token)
+def main():
+    setup_logging(os.environ.get("LOGGING_CONFIG", "/config/logging.json"))
+
+    if not (discord_token := os.getenv("DISCORD_API_TOKEN")):
+        LOGGER.critical("DISCORD_API_TOKEN envvar not found.")
+        return
+
+    if not (steam_token := os.getenv("STEAM_API_TOKEN")):
+        LOGGER.critical("STEAM_API_TOKEN envvar not found.")
+        return
+    database = os.environ.get("DATABASE", "/data/steam_ban_checker.db")
+    if os.path.isdir(database):
+        database = os.path.join(database, "steam_ban_checker.db")
+    aioutils.install()
+    checker = BanChecker(database, steam_token, discord_token)
+    checker.run()
 
 
-@checker.discord.event
-async def on_message(message):
-    await checker.on_message(message)
-
-
-@checker.discord.event
-async def on_ready():
-    await checker.on_ready()
-
-
-@checker.discord.event
-async def on_server_join(server):
-    await checker.on_server_join(server)
-
-checker.run()
+if __name__ == "__main__":
+    main()

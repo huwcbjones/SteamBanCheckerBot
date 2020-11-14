@@ -4,6 +4,8 @@ FROM python:3.8
 # Install poetry
 RUN set -ex && pip install poetry
 
+VOLUME ["/data", "/config"]
+
 # Set the working directory/python path to /app
 WORKDIR /app
 ENV PYTHONPATH /app
