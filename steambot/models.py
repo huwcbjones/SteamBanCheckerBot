@@ -1,6 +1,7 @@
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
+import humanfriendly
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -35,8 +36,14 @@ class User(Base):
     date_banned = Column(DateTime)
     servers = relationship("Guild", secondary=_join_table)
 
-    @property
-    def days_since_last_ban(self) -> Optional[int]:
+    def time_since_last_ban(
+        self, as_str: bool = True
+    ) -> Optional[Union[timedelta, str]]:
         if self.date_banned is None:
             return None
-        return (datetime.utcnow() - self.date_banned).days
+        time_since_last_ban = datetime.utcnow() - self.date_banned
+        if not as_str:
+            return time_since_last_ban
+        return humanfriendly.format_timespan(
+            time_since_last_ban.total_seconds(), max_units=1
+        )

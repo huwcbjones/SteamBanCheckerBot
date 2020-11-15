@@ -13,6 +13,7 @@ ENV PYTHONPATH /app
 # Install any needed packages from pyproject
 COPY pyproject.toml /app/
 COPY external /app/external
+RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev --no-interaction
 
 # Copy the current directory contents into the container at /app

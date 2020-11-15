@@ -216,6 +216,14 @@ class BanChecker(discord.Client):
             LOGGER.info('Message="Processed user" User="%s"', db_user.id)
             asyncio.create_task(self.check_ban(db_user.id, guild_ids))
 
+    @staticmethod
+    def ban_status_changed(source: Optional[datetime], comparison: Optional[datetime]) -> bool:
+        if comparison is None:
+            return False
+        if source is None:
+            return True
+        return comparison.date() > source.date()
+
     async def check_ban(self, user_id: int, guild_ids: Sequence[int] = None):
         LOGGER.debug('Message="Checking user for bans" UserID="%s"', user_id)
         with self._session() as session:
@@ -225,7 +233,8 @@ class BanChecker(discord.Client):
             if ban_date is None:
                 LOGGER.info('Message="User has not been banned" UserID="%s"', user_id)
                 return
-            if ban_date == user.date_banned:
+
+            if not self.ban_status_changed(user.date_banned, ban_date):
                 LOGGER.info(
                     'Message="User ban status has not changed" UserID="%s" BanDate="%s"',
                     user_id,
@@ -239,7 +248,7 @@ class BanChecker(discord.Client):
                 user.date_banned,
             )
 
-            user.date_banned = ban_date
+            user.date_banned = ban_date.replace(hour=0, minute=0, second=0, microsecond=0)
             session.add(user)
             session.commit()
 
@@ -257,7 +266,7 @@ class BanChecker(discord.Client):
                 ]
             )
             message = discord.Embed(
-                title=f"{user.name} was last banned {user.days_since_last_ban} days ago",
+                title=f"{user.name} was last banned {user.time_since_last_ban()} ago",
                 color=discord.Color.red(),
             )
             message.description = f"""\
